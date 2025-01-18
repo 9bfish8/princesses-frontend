@@ -23,7 +23,7 @@ export default function LoginPage() {
       localStorage.setItem('username', response.data.user.username);
 
       router.push('/calendar');
-    } catch (error) {
+    } catch (_) {
       setError('로그인에 실패했습니다.');
     }
   };
