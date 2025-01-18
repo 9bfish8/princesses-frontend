@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth } from 'date-fns';
+import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, subMonths as subMonthsOriginal } from 'date-fns';
 import api from '@/lib/axios';
 import { ko } from 'date-fns/locale';
 import { useRouter } from 'next/navigation';
@@ -95,10 +95,29 @@ export default function CalendarPage() {
     const getDaysInMonth = () => {
         const start = startOfMonth(currentDate);
         const end = endOfMonth(currentDate);
-        return eachDayOfInterval({ start, end });
-    };
+        const firstDayOfMonth = start.getDay(); // 해당 월의 1일의 요일 (0: 일요일, 1: 월요일, ...)
 
-    const days = getDaysInMonth();
+        // 이전 달의 날짜들을 가져오기
+        const prevMonthDays = Array(firstDayOfMonth).fill(null).map((_, index) => {
+            const d = new Date(start);
+            d.setDate(d.getDate() - (firstDayOfMonth - index));
+            return d;
+        });
+
+        // 현재 달의 날짜들
+        const currentMonthDays = eachDayOfInterval({ start, end });
+
+        // 다음 달의 날짜들 (42개가 되도록 채우기)
+        const totalDays = prevMonthDays.length + currentMonthDays.length;
+        const remainingDays = 42 - totalDays; // 6주 x 7일 = 42
+        const nextMonthDays = Array(remainingDays).fill(null).map((_, index) => {
+            const d = new Date(end);
+            d.setDate(d.getDate() + index + 1);
+            return d;
+        });
+
+        return [...prevMonthDays, ...currentMonthDays, ...nextMonthDays];
+    };
 
     const handleLogout = () => {
         localStorage.clear();
@@ -151,7 +170,7 @@ export default function CalendarPage() {
                             </div>
                         ))}
 
-                        {days.map((day) => {
+                        {getDaysInMonth().map((day) => {
                             const dayEvents = events.filter(event =>
                                 format(new Date(event.date), 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd')
                             );
