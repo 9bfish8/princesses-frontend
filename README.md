@@ -74,3 +74,7 @@ model Event {
 ## 배포 환경
 - 백엔드: Render
 - 프론트엔드: Vercel
+
+## 사용자 리뷰 ~ 올릴예정 ~
+![image](https://github.com/user-attachments/assets/2557f0fb-35bf-4006-bf4d-42c71aca5055)
+
